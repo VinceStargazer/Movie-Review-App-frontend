@@ -1,0 +1,191 @@
+import React, { useState } from "react";
+import { AiOutlineStar } from "react-icons/ai";
+import { BsTrash } from "react-icons/bs";
+import { Link } from "react-router-dom";
+import { decodeGenre, trimTitle } from "../../utils/helper";
+import AddRatingModal from "../modals/AddRatingModal";
+import ConfirmModal from "../modals/ConfirmModal";
+import StarAndScore from "../review/StarAndScore";
+
+export default function WatchlistCard({ movie, onDelete }) {
+  const [showReviewModal, setShowReviewModal] = useState(false);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [busy, setBusy] = useState(false);
+
+  const {
+    tmdb_id: id,
+    title,
+    storyline,
+    releaseDate,
+    reviews,
+    ratingSum,
+    runtime,
+    genres,
+    type,
+    poster,
+    directors,
+    cast,
+  } = movie;
+
+  const handleRatingSuccess = (ratingSum, reviews, singleReview) => {
+    onDelete(id);
+  };
+
+  const handleRemoveFromList = async () => {
+    setBusy(true);
+    onDelete(id);
+    setBusy(false);
+  };
+
+  const movieURL = `/movie/${id}?type=${type}`;
+  let genreStr = "";
+  for (let i = 0; i < genres.length; i++) {
+    genreStr += decodeGenre(genres[[i]]);
+    if (i < genres.length - 1) genreStr += ", ";
+  }
+
+  return (
+    <div>
+      <div className="dark:bg-primary bg-white py-3">
+        <div className="relative flex space-x-6 border-b pb-10 dark:border-fourth border-light-fourth">
+          <Link className="w-1/6" to={movieURL}>
+            <img
+              className="aspect-auto object-cover drop-shadow-lg"
+              src={poster}
+              alt=""
+            />
+          </Link>
+
+          <div className="flex flex-col w-[36rem] space-y-1">
+            <Link
+              className="dark:text-dark-blue text-light-blue hover:underline transition text-xl"
+              to={movieURL}
+            >
+              {title}
+            </Link>
+            <div className="flex">
+              <Text hasRightBorder>{releaseDate?.substring(0, 4)}</Text>
+              <Text className="pl-3" hasRightBorder>
+                {type === "movie" ? "Movie" : "TV Series"}
+              </Text>
+              <Text className="pl-3" hasRightBorder>
+                {runtime + "m"}
+              </Text>
+              <Text className="pl-3">{genreStr}</Text>
+            </div>
+
+            <div className="flex items-center space-x-3">
+              <StarAndScore
+                reviewCount={reviews.length}
+                ratingSum={ratingSum}
+                textStyle="dark:text-zinc text-secondary"
+              />
+              <EditBtn text="Rate" onClick={() => setShowReviewModal(true)}>
+                <AiOutlineStar className="dark:text-highlight-dark text-highlight-deep" />
+              </EditBtn>
+              <EditBtn text="Delete" onClick={() => setShowConfirmModal(true)}>
+                <BsTrash className="dark:text-dark-subtle text-light-subtle" />
+              </EditBtn>
+            </div>
+
+            <div className="flex items-center">
+              {directors.length > 0 && <PeopleRow people={directors} hasRightBorder />}
+              <PeopleRow people={cast} hasLeftPadding={directors.length} />
+            </div>
+
+            <div className="dark:text-light-fourth text-fourth py-1">
+              {trimTitle(storyline, 600)}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <AddRatingModal
+        movieId={id}
+        type={type}
+        title={title}
+        visible={showReviewModal}
+        onClose={() => setShowReviewModal(false)}
+        onSuccess={handleRatingSuccess}
+      />
+
+      <ConfirmModal
+        visible={showConfirmModal}
+        busy={busy}
+        title={`Are you sure to remove ${title} from your watchlist?`}
+        subtitle="You can still bookmark it later"
+        onConfirm={handleRemoveFromList}
+        onClose={() => setShowConfirmModal(false)}
+      />
+    </div>
+  );
+}
+
+const Text = ({ children, hasRightBorder, className }) => {
+  return (
+    <span
+      className={
+        className +
+        " pr-3 dark:text-light-fourth text-fourth " +
+        (hasRightBorder
+          ? "border-r dark:border-fourth border-light-fourth"
+          : "")
+      }
+    >
+      {children}
+    </span>
+  );
+};
+
+const EditBtn = ({ children, text, onClick }) => {
+  return (
+    <button
+      type="button"
+      className="flex rounded items-center space-x-1 px-2 py-1 dark:hover:bg-tertiary hover:bg-zinc transition"
+      onClick={onClick}
+    >
+      {children}
+      <span className="dark:text-zinc text-secondary">{text}</span>
+    </button>
+  );
+};
+
+const PeopleRow = ({ people, hasRightBorder, hasLeftPadding }) => {
+  return (
+    <div
+      className={
+        "flex items-center " +
+        (hasRightBorder
+          ? "border-r dark:border-fourth border-light-fourth pr-3 "
+          : "") +
+        (hasLeftPadding ? "pl-3" : "")
+      }
+    >
+      {people
+        .filter((_, index) => index < 3)
+        .map((p, index) => {
+          if (index < Math.min(2, people.length - 1)) {
+            return (
+              <div key={index} className="flex items-center">
+                <PersonLink person={p} />
+                <p className="dark:text-light-fourth text-fourth mr-2">,</p>
+              </div>
+            );
+          }
+          return <PersonLink key={index} person={p} />;
+        })}
+    </div>
+  );
+};
+
+const PersonLink = ({ person }) => {
+  const { id, name } = person;
+  return (
+    <Link
+      to={"/person/" + id}
+      className="dark:text-dark-blue text-light-blue hover:underline transition"
+    >
+      {name}
+    </Link>
+  );
+};
