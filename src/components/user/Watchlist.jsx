@@ -38,6 +38,7 @@ export default function Watchlist() {
   const [isGrid, setIsGrid] = useState(false);
   const [showRefine, setShowRefine] = useState(false);
   const [selectedOption, setSelectedOption] = useState("type");
+  const [selectedOrder, setSelectedOrder] = useState("List Order");
   const [typeOptions, setTypeOptions] = useState([]);
   const [genreOptions, setGenreOptions] = useState([]);
   const [fromYear, setFromYear] = useState(0);
@@ -52,7 +53,8 @@ export default function Watchlist() {
     const arr = [],
       types = [],
       genres = [];
-    let min = 2300, max = 0;
+    let min = 2300,
+      max = 0;
     const genreMap = new Map();
     for (let w of result1.watchlist) {
       const { releaseDate, genres } = w;
@@ -87,13 +89,77 @@ export default function Watchlist() {
     genreMap.forEach((value, key) => {
       genres.push(<CheckOption title={key} number={value} />);
     });
-    setMovies(arr);
+    setMovies([...arr]);
     setMoviesToShow(arr);
     setTypeOptions(types);
     setGenreOptions(genres);
     setFromYear(min);
     setToYear(max);
   };
+
+  const handleListOrder = () => {
+    if (selectedOrder === "List Order") return;
+    setMoviesToShow([...movies]);
+    setSelectedOrder("List Order");
+    setIsDescend(true);
+  };
+
+  const handleAlphabetical = () => {
+    if (selectedOrder === "Alphabetical") return;
+    const arr = [...moviesToShow];
+    arr.sort((a, b) => a.title.localeCompare(b.title));
+    setMoviesToShow(arr);
+    setSelectedOrder("Alphabetical");
+    setIsDescend(false);
+  };
+
+  const handleRatingOrder = () => {
+    if (selectedOrder === "Rating") return;
+    const arr = [...moviesToShow];
+    arr.sort((a, b) => {
+      const score1 = b.reviews?.reviewCount ? b.reviews.ratingSum / b.reviews.reviewCount : 0,
+        score2 = a.reviews?.reviewCount ? a.reviews.ratingSum / a.reviews.reviewCount : 0;
+      if (score1 === score2) return 0;
+      return score1 > score2 ? 1 : -1;
+    });
+    setMoviesToShow(arr);
+    setSelectedOrder("Rating");
+    setIsDescend(true);
+  };
+
+  const handleRatingNumOrder = () => {
+    if (selectedOrder === "Number of Ratings") return;
+    const arr = [...moviesToShow];
+    arr.sort((a, b) => b.reviews?.reviewCount - a.reviews?.reviewCount);
+    setMoviesToShow(arr);
+    setSelectedOrder("Number of Ratings");
+    setIsDescend(true);
+  };
+
+  const handleDateOrder = () => {
+    if (selectedOrder === "Release Date") return;
+    const arr = [...moviesToShow];
+    arr.sort((a, b) => b.releaseDate?.localeCompare(a.releaseDate));
+    setMoviesToShow(arr);
+    setSelectedOrder("Release Date");
+    setIsDescend(true);
+  };
+
+  const handleRuntimeOrder = () => {
+    if (selectedOrder === "Runtime") return;
+    const arr = [...moviesToShow];
+    arr.sort((a, b) => (b.runtime || 0) - (a.runtime || 0));
+    setMoviesToShow(arr);
+    setSelectedOrder("Runtime");
+    setIsDescend(true);
+  }
+
+  const handleReverse = () => {
+    const arr = [...moviesToShow];
+    arr.reverse();
+    setMoviesToShow(arr);
+    setIsDescend(!isDescend);
+  }
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -135,13 +201,19 @@ export default function Watchlist() {
           <span>{movies.length + " Titles"}</span>
           <div className="flex space-x-2 items-center">
             <span>Sort by:</span>
-            <DropDownBtns selected="List Order">
-              <OptionButton>List Order</OptionButton>
-              <OptionButton>Alphabetical</OptionButton>
-              <OptionButton>Rating</OptionButton>
-              <OptionButton>Number of Ratings</OptionButton>
-              <OptionButton>Release Date</OptionButton>
-              <OptionButton>Runtime</OptionButton>
+            <DropDownBtns selected={selectedOrder}>
+              <OptionButton onClick={handleListOrder}>List Order</OptionButton>
+              <OptionButton onClick={handleAlphabetical}>
+                Alphabetical
+              </OptionButton>
+              <OptionButton onClick={handleRatingOrder}>Rating</OptionButton>
+              <OptionButton onClick={handleRatingNumOrder}>
+                Number of Ratings
+              </OptionButton>
+              <OptionButton onClick={handleDateOrder}>
+                Release Date
+              </OptionButton>
+              <OptionButton onClick={handleRuntimeOrder}>Runtime</OptionButton>
             </DropDownBtns>
 
             <div className="flex items-center space-x-5">
@@ -149,7 +221,7 @@ export default function Watchlist() {
                 type="button"
                 title={isDescend ? "Descending Order" : "Ascending Order"}
                 className={btnClass + "flex items-center -space-x-3 py-1"}
-                onClick={() => setIsDescend(!isDescend)}
+                onClick={handleReverse}
               >
                 <HiOutlineArrowNarrowDown
                   size={24}
@@ -265,14 +337,16 @@ export default function Watchlist() {
 
         {isGrid && (
           <div className="grid lg:grid-cols-5 md:grid-cols-3 grid-cols-2 gap-9 px-2 py-4">
-            {moviesToShow.map((m, index) => (
-              <MoviePoster
-                key={index}
-                movie={m}
-                ignoreAddWatchlist
-                defaultMark
-              />
-            ))}
+            {moviesToShow.map((m, index) => {
+              return (
+                <MoviePoster
+                  key={index}
+                  movie={m}
+                  ignoreAddWatchlist
+                  defaultStatus={1}
+                />
+              );
+            })}
           </div>
         )}
       </Container>

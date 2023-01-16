@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { AiOutlineStar } from "react-icons/ai";
 import { Link, useNavigate } from "react-router-dom";
-import { bookmark, getWatchlist, unbookmark } from "../../api/user";
+import { bookmark, getSimpleWatched, getSimpleWatchlist, unbookmark } from "../../api/user";
 import { useAuth, useNotification } from "../../hooks";
 import { trimTitle } from "../../utils/helper";
 import AddRatingModal from "../modals/AddRatingModal";
@@ -27,6 +27,7 @@ export default function MovieCard({ movie }) {
   const handleRatingSuccess = (ratingSum, reviews, singleReview) => {
     setReviewCount(reviews.length);
     setRatingSum(ratingSum);
+    setStatus(2);
   };
 
   const handleBookmark = async () => {
@@ -55,13 +56,16 @@ export default function MovieCard({ movie }) {
   };
 
   const fetchWatchlist = async () => {
-    const { error, watchlist } = await getWatchlist(type);
+    const { error, watchlist } = await getSimpleWatchlist(type);
     if (error) return updateNotification("error", error);
-    const arr = watchlist.filter(w => w.tmdb_id === id.toString());
-    if (arr.length) setStatus(1);
+    if (watchlist.includes(id.toString())) setStatus(1);
   };
 
-  const fetchWatched = async () => {};
+  const fetchWatched = async () => {
+    const { error, watched } = await getSimpleWatched(type);
+    if (error) return updateNotification("error", error);
+    if (watched.includes(id.toString())) setStatus(2);
+  };
 
   useEffect(() => {
     if (userId) {
@@ -101,13 +105,13 @@ export default function MovieCard({ movie }) {
 
           <div className="flex space-x-2">
             <StarAndScore ratingSum={ratingSum} reviewCount={reviewCount} />
-            <button
+            {status < 2 && <button
               type="button"
               onClick={handleRateMovie}
               className="px-3 py-1 hover:dark:bg-tertiary hover:bg-zinc transition dark:text-dark-blue text-light-blue hover:dark:text-white hover:text-primary"
             >
               <AiOutlineStar />
-            </button>
+            </button>}
           </div>
         </div>
       </div>

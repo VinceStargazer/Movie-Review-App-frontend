@@ -20,7 +20,7 @@ export default function Bookmark({ status, busy = false, onClick }) {
         (status === 1
           ? "text-highlight-dark"
           : status === 2
-          ? "text-green-400"
+          ? "text-green-500"
           : "opacity-60 text-secondary hover:text-fourth") +
         " absolute -top-[3px] -left-[8px] z-10 transition"
       }

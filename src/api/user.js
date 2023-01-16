@@ -23,6 +23,28 @@ export const getWatched = async (type = "movie") => {
   }
 };
 
+export const getSimpleWatchlist = async (type = "movie") => {
+  try {
+    const { data } = await client("/user/watchlist-simple?type=" + type, {
+      headers: getHeaders(),
+    });
+    return data;
+  } catch (error) {
+    return catchError(error);
+  }
+};
+
+export const getSimpleWatched = async (type = "movie") => {
+  try {
+    const { data } = await client("/user/watched-simple?type=" + type, {
+      headers: getHeaders(),
+    });
+    return data;
+  } catch (error) {
+    return catchError(error);
+  }
+};
+
 export const bookmark = async (movieId, type = "movie") => {
   try {
     const { data } = await client.post(`/user/bookmark/${movieId}?type=${type}`, {}, {

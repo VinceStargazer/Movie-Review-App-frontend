@@ -13,12 +13,11 @@ export default function WatchlistCard({ movie, onDelete }) {
   const [busy, setBusy] = useState(false);
 
   const {
-    tmdb_id: id,
+    id,
     title,
     storyline,
     releaseDate,
     reviews,
-    ratingSum,
     runtime,
     genres,
     type,
@@ -26,6 +25,8 @@ export default function WatchlistCard({ movie, onDelete }) {
     directors,
     cast,
   } = movie;
+
+  const { reviewCount, ratingSum } = reviews;
 
   const handleRatingSuccess = (ratingSum, reviews, singleReview) => {
     onDelete(id);
@@ -56,7 +57,7 @@ export default function WatchlistCard({ movie, onDelete }) {
             />
           </Link>
 
-          <div className="flex flex-col w-[36rem] space-y-1">
+          <div className="flex flex-col w-[38rem] space-y-1">
             <Link
               className="dark:text-dark-blue text-light-blue hover:underline transition text-xl"
               to={movieURL}
@@ -69,14 +70,14 @@ export default function WatchlistCard({ movie, onDelete }) {
                 {type === "movie" ? "Movie" : "TV Series"}
               </Text>
               <Text className="pl-3" hasRightBorder>
-                {runtime + "m"}
+                {runtime ? runtime + "m" : "unknown"}
               </Text>
               <Text className="pl-3">{genreStr}</Text>
             </div>
 
             <div className="flex items-center space-x-3">
               <StarAndScore
-                reviewCount={reviews.length}
+                reviewCount={reviewCount}
                 ratingSum={ratingSum}
                 textStyle="dark:text-zinc text-secondary"
               />
@@ -89,12 +90,14 @@ export default function WatchlistCard({ movie, onDelete }) {
             </div>
 
             <div className="flex items-center">
-              {directors.length > 0 && <PeopleRow people={directors} hasRightBorder />}
+              {directors.length > 0 && (
+                <PeopleRow people={directors} hasRightBorder />
+              )}
               <PeopleRow people={cast} hasLeftPadding={directors.length} />
             </div>
 
             <div className="dark:text-light-fourth text-fourth py-1">
-              {trimTitle(storyline, 600)}
+              {trimTitle(storyline, 550)}
             </div>
           </div>
         </div>

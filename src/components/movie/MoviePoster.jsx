@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+/* eslint-disable react-hooks/exhaustive-deps */
+import React, { useEffect, useState } from "react";
 import { AiOutlineStar } from "react-icons/ai";
 import { FiMinus, FiPlus } from "react-icons/fi";
 import { Link, useNavigate } from "react-router-dom";
@@ -6,38 +7,78 @@ import { trimTitle } from "../../utils/helper";
 import AddRatingModal from "../modals/AddRatingModal";
 import Bookmark from "./Bookmark";
 import Submit from "../form/Submit";
-import { useAuth } from "../../hooks";
+import { useAuth, useNotification } from "../../hooks";
 import StarAndScore from "../review/StarAndScore";
+import { bookmark, getSimpleWatched, getSimpleWatchlist, unbookmark } from "../../api/user";
 
 export default function MoviePoster({
   movie,
   ignoreAddWatchlist,
-  defaultMark = false,
+  defaultStatus = 0,
 }) {
   const { id, type, title, poster, reviews } = movie;
 
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [reviewCount, setReviewCount] = useState(reviews.reviewCount);
   const [ratingSum, setRatingSum] = useState(reviews.ratingSum);
-  const [isBookmarked, setIsBookMarked] = useState(defaultMark);
+  const [status, setStatus] = useState(defaultStatus);
+  const [busy, setBusy] = useState(false);
   const [hovered, setHovered] = useState(false);
 
+  const { updateNotification } = useNotification();
   const { authInfo } = useAuth();
+  const userId = authInfo?.profile?.id;
   const navigate = useNavigate();
 
   const handleRatingSuccess = (ratingSum, reviews, singleReview) => {
     setReviewCount(reviews.length);
     setRatingSum(ratingSum);
+    setStatus(2);
   };
 
-  const handleBookmark = () => {
-    setIsBookMarked(!isBookmarked);
+  const handleBookmark = async () => {
+    if (status === 0) {
+      setBusy(true);
+      const { error, message } = await bookmark(id, type);
+      setBusy(false);
+      if (error) return updateNotification("error", error);
+      updateNotification("success", message);
+      setStatus(1);
+    } else if (status === 1) {
+      setBusy(true);
+      const { error, message } = await unbookmark(id, type);
+      setBusy(false);
+      if (error) return updateNotification("error", error);
+      updateNotification("success", message);
+      setStatus(0);
+    } else {
+      updateNotification("success", "You have reviewed this movie");
+    }
   };
 
   const handleRateMovie = () => {
     if (!authInfo.isLoggedIn) return navigate("/auth/login");
     setShowReviewModal(true);
   };
+
+  const fetchWatchlist = async () => {
+    const { error, watchlist } = await getSimpleWatchlist(type);
+    if (error) return updateNotification("error", error);
+    if (watchlist.includes(id.toString())) setStatus(1);
+  };
+
+  const fetchWatched = async () => {
+    const { error, watched } = await getSimpleWatched(type);
+    if (error) return updateNotification("error", error);
+    if (watched.includes(id.toString())) setStatus(2);
+  };
+
+  useEffect(() => {
+    if (userId) {
+      fetchWatchlist();
+      fetchWatched();
+    }
+  }, [userId]);
 
   return (
     <div>
@@ -46,7 +87,7 @@ export default function MoviePoster({
         onMouseLeave={() => setHovered(false)}
         className="relative dark:bg-secondary bg-white hover:bg-opacity-90 transition drop-shadow-lg rounded"
       >
-        <Bookmark isBookmarked={isBookmarked} onClick={handleBookmark} />
+        <Bookmark status={status} busy={busy} onClick={handleBookmark} />
         <Link to={"/movie/" + id + "?type=" + type}>
           <img
             className={
@@ -84,7 +125,7 @@ export default function MoviePoster({
               onClick={handleBookmark}
               className="h-8 space-x-1 dark:bg-highlight-dark bg-highlight-deep dark:text-secondary text-zinc justify-center"
             >
-              {isBookmarked ? <FiMinus /> : <FiPlus />}
+              {status === 1 ? <FiMinus /> : <FiPlus />}
               <h1>Watchlist</h1>
             </Submit>
           )}
