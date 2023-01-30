@@ -175,9 +175,24 @@ export default function SingleMovie() {
               <span className="text-2xl text-light-blue dark:text-dark-blue mx-1">
                 {userReview.rating ? <AiFillStar /> : <AiOutlineStar />}
               </span>
-              <span className="text-xl text-light-blue dark:text-dark-blue font-semibold">
-                {userReview.rating ? "Edit" : "Rate"}
-              </span>
+              {userReview.rating && (
+                <div className="flex items-center">
+                  <span className="text-2xl text-primary dark:text-white font-semibold">
+                    {userReview.rating}
+                  </span>
+                  <span className="text-xl text-light-subtle dark:text-dark-subtle">
+                    /10
+                  </span>
+                  <span className="text-md text-light-subtle dark:text-dark-subtle mx-3">
+                    Your Rating
+                  </span>
+                </div>
+              )}
+              {!userReview.rating && (
+                <span className="text-xl text-light-blue dark:text-dark-blue font-semibold">
+                  Rate
+                </span>
+              )}
             </button>
           </div>
         </div>

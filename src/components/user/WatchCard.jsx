@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { AiOutlineStar } from "react-icons/ai";
+import { AiFillStar, AiOutlineStar } from "react-icons/ai";
 import { BsTrash } from "react-icons/bs";
 import { Link } from "react-router-dom";
 import { decodeGenre, trimTitle } from "../../utils/helper";
@@ -7,7 +7,7 @@ import AddRatingModal from "../modals/AddRatingModal";
 import ConfirmModal from "../modals/ConfirmModal";
 import StarAndScore from "../review/StarAndScore";
 
-export default function WatchlistCard({ movie, onDelete }) {
+export default function WatchCard({ movie, onDelete }) {
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -24,6 +24,7 @@ export default function WatchlistCard({ movie, onDelete }) {
     poster,
     directors,
     cast,
+    myReview
   } = movie;
 
   const { reviewCount, ratingSum } = reviews;
@@ -81,9 +82,12 @@ export default function WatchlistCard({ movie, onDelete }) {
                 ratingSum={ratingSum}
                 textStyle="dark:text-zinc text-secondary"
               />
-              <EditBtn text="Rate" onClick={() => setShowReviewModal(true)}>
+              {!myReview && <EditBtn text="Rate" onClick={() => setShowReviewModal(true)}>
                 <AiOutlineStar className="dark:text-highlight-dark text-highlight-deep" />
-              </EditBtn>
+              </EditBtn>}
+              {myReview && <EditBtn text={myReview.rating}>
+                <AiFillStar className="dark:text-dark-blue text-light-blue" />
+              </EditBtn>}
               <EditBtn text="Delete" onClick={() => setShowConfirmModal(true)}>
                 <BsTrash className="dark:text-dark-subtle text-light-subtle" />
               </EditBtn>

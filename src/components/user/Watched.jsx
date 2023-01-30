@@ -2,10 +2,11 @@
 import React, { useEffect, useState } from "react";
 import { useAuth, useNotification } from "../../hooks";
 import Loading from "./Loading";
-import WatchlistCard from "./WatchlistCard";
-import MoviePoster from "../movie/MoviePoster";
 import { getWatched } from "../../api/user";
-import { decodeGenre } from "../../utils/helper";
+import StdContainer from "../StdContainer";
+import MovieStore from "../MovieStore";
+import Container from "../Container";
+import Trending from "../movie/Trending";
 
 export default function Watched() {
   const { updateNotification } = useNotification();
@@ -34,12 +35,22 @@ export default function Watched() {
 
   if (!ready) return <Loading />;
 
-  return <div>{movies.map((m, index) => (
-    <MoviePoster
-      key={index}
-      movie={m}
-      ignoreAddWatchlist
-      defaultStatus={2}
-    />
-  ))}</div>;
+  if (!movies.length)
+    return (
+      <StdContainer>
+        <Container className="p-10 space-y-10">
+          <h1 className="text-2xl dark:text-white text-primary font-semibold">
+            You don't have any review yet. Here's something to start...
+          </h1>
+          <Trending type="movie" />
+          <Trending type="tv" />
+        </Container>
+      </StdContainer>
+    );
+
+  return (
+    <StdContainer>
+      <MovieStore movies={movies} title="Your Ratings" defaultStatus={2} />
+    </StdContainer>
+  );
 }

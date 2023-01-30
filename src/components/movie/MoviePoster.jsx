@@ -74,7 +74,7 @@ export default function MoviePoster({
   };
 
   useEffect(() => {
-    if (userId) {
+    if (userId && !defaultStatus) {
       fetchWatchlist();
       fetchWatched();
     }
