@@ -31,6 +31,7 @@ export default function MovieCard({ movie }) {
   };
 
   const handleBookmark = async () => {
+    if (!authInfo.isLoggedIn) return navigate("/auth/login");
     if (status === 0) {
       setBusy(true);
       const { error, message } = await bookmark(id, type);
