@@ -19,6 +19,7 @@ import MovieImagesPage from "./components/images/MovieImagesPage";
 import PersonImagesPage from "./components/images/PersonImagesPage";
 import Watchlist from "./components/user/Watchlist";
 import Watched from "./components/user/Watched";
+import SearchResults from "./components/search/SearchResults";
 
 export default function App() {
   const { authInfo } = useAuth();
@@ -44,6 +45,7 @@ export default function App() {
         <Route path="/person/:personId/images" element={<PersonImagesPage />} />
         <Route path="/user/watchlist" element={<Watchlist />} />
         <Route path="/user/watched" element={<Watched />} />
+        <Route path="/user/search" element={<SearchResults />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </div>

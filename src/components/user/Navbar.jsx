@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { BsSearch } from "react-icons/bs";
 import { HiOutlineLightBulb } from "react-icons/hi";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth, useTheme } from "../../hooks";
 import Container from "../Container";
 import DropDownLinks from "./DropDownLinks";
@@ -16,6 +16,7 @@ const dropDownOptions = [
 
 export default function Navbar() {
   const { toggleTheme } = useTheme();
+  const navigate = useNavigate();
   const { authInfo, handleLogout } = useAuth();
   const { isLoggedIn } = authInfo;
 
@@ -28,7 +29,10 @@ export default function Navbar() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log(searchContent);
+    if (searchContent.length) {
+      navigate("/user/search?query=" + searchContent);
+      setSearchContent("");
+    }
   };
 
   return (

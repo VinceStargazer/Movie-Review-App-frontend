@@ -1,9 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { DEFAULT_PROFILE } from "../../utils/config";
 import { trimTitle } from "../../utils/helper";
-
-const defaultProfile =
-  "https://m.media-amazon.com/images/S/sash/N1QWYSqAfSJV62Y.png";
 
 export default function CastSection({ cast }) {
   return (
@@ -24,7 +22,7 @@ export default function CastSection({ cast }) {
             <Link to={"/person/" + id} className="mr-3">
               <img
                 className="w-10 aspect-auto object-cover drop-shadow-lg"
-                src={profile?.endsWith("null") ? defaultProfile : profile}
+                src={profile?.endsWith("null") ? DEFAULT_PROFILE : profile}
                 alt=""
               />
             </Link>

@@ -102,3 +102,21 @@ export const getMovieImages = async (id, type = "movie") => {
     return catchError(error);
   }
 };
+
+export const getMovieSearch = async (query, type = "movie", limit = 100) => {
+  try {
+    const { data } = await client(`/movie/search?query=${query}&type=${type}&limit=${limit}`);
+    return data;
+  } catch (error) {
+    return catchError(error);
+  }
+};
+
+export const getPersonSearch = async (query, limit = 100) => {
+  try {
+    const { data } = await client(`/person/search?query=${query}&limit=${limit}`);
+    return data;
+  } catch (error) {
+    return catchError(error);
+  }
+};
