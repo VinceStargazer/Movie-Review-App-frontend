@@ -40,7 +40,9 @@ export default function ForgetPassword() {
             name="email"
             placeholder="user@email.com"
           />
-          <Submit value="Send link" />
+          <Submit className="h-8 space-x-1 dark:bg-highlight-dark bg-highlight-deep dark:text-secondary text-zinc justify-center">
+            Send link
+          </Submit>
           <div className="flex justify-between">
             <CustomLink to="/auth/login">Login</CustomLink>
             <CustomLink to="/auth/signup">Sign up</CustomLink>

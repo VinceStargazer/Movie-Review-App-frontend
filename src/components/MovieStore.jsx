@@ -21,8 +21,6 @@ const inputClass =
   "px-2 py-1 rounded outline outline-1 outline-light-fourth dark:outline-fourth dark:bg-primary bg-white focus:dark:outline-light-fourth focus:outline-fourth transition dark:text-gray text-tertiary w-36";
 
 export default function MovieStore({ movies, title, defaultStatus }) {
-  const types = [],
-    genres = [];
   let min = 2300,
     max = 0,
     movieCnt = 0,
@@ -43,11 +41,8 @@ export default function MovieStore({ movies, title, defaultStatus }) {
     }
   }
 
-  types.push(<CheckOption title="Movie" number={movieCnt} />);
-  types.push(<CheckOption title="TV Series" number={tvCnt} />);
-  genreMap.forEach((value, key) => {
-    genres.push(<CheckOption title={key} number={value} />);
-  });
+  const defaultGenres = [];
+  genreMap.forEach((_, key) => defaultGenres.push(key));
 
   const [moviesToShow, setMoviesToShow] = useState([...movies]);
   const [isDescend, setIsDescend] = useState(true);
@@ -55,8 +50,7 @@ export default function MovieStore({ movies, title, defaultStatus }) {
   const [showRefine, setShowRefine] = useState(false);
   const [selectedOption, setSelectedOption] = useState("type");
   const [selectedOrder, setSelectedOrder] = useState("List Order");
-  const [typeOptions, setTypeOptions] = useState(types);
-  const [genreOptions, setGenreOptions] = useState(genres);
+  const [genres, setGenres] = useState(defaultGenres);
   const [fromYear, setFromYear] = useState(min);
   const [toYear, setToYear] = useState(max);
 
@@ -234,10 +228,21 @@ export default function MovieStore({ movies, title, defaultStatus }) {
             />
           </div>
           {selectedOption === "type" && (
-            <RefineSection>{typeOptions}</RefineSection>
+            <RefineSection>
+              <CheckOption title="Movie" number={movieCnt} onCheck={() => {}} />
+              <CheckOption
+                title="TV Series"
+                number={tvCnt}
+                onCheck={() => {}}
+              />
+            </RefineSection>
           )}
           {selectedOption === "genre" && (
-            <RefineSection>{genreOptions}</RefineSection>
+            <RefineSection>
+              {genres.map((g, index) => (
+                <CheckOption key={index} title={g} number={genreMap.get(g)} onCheck={() => {}} />
+              ))}
+            </RefineSection>
           )}
           {selectedOption === "releaseDate" && (
             <RefineSection className="p-6 space-y-3">

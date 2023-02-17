@@ -40,7 +40,7 @@ export default function Watched() {
       <StdContainer>
         <Container className="p-10 space-y-10">
           <h1 className="text-2xl dark:text-white text-primary font-semibold">
-            You don't have any review yet. Here's something to start...
+            You don't have any reviews yet. Here's something to start...
           </h1>
           <Trending type="movie" />
           <Trending type="tv" />

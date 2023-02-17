@@ -5,10 +5,12 @@ import { Link } from "react-router-dom";
 import { decodeGenre, trimTitle } from "../../utils/helper";
 import AddRatingModal from "../modals/AddRatingModal";
 import ConfirmModal from "../modals/ConfirmModal";
+import UpdateRatingModal from "../modals/UpdateRatingModal";
 import StarAndScore from "../review/StarAndScore";
 
 export default function WatchCard({ movie, onDelete }) {
   const [showReviewModal, setShowReviewModal] = useState(false);
+  const [showUpdateModal, setShowUpdateModal] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [busy, setBusy] = useState(false);
 
@@ -24,7 +26,7 @@ export default function WatchCard({ movie, onDelete }) {
     poster,
     directors,
     cast,
-    myReview
+    myReview,
   } = movie;
 
   const { reviewCount, ratingSum } = reviews;
@@ -82,12 +84,15 @@ export default function WatchCard({ movie, onDelete }) {
                 ratingSum={ratingSum}
                 textStyle="dark:text-zinc text-secondary"
               />
-              {!myReview && <EditBtn text="Rate" onClick={() => setShowReviewModal(true)}>
-                <AiOutlineStar className="dark:text-highlight-dark text-highlight-deep" />
-              </EditBtn>}
-              {myReview && <EditBtn text={myReview.rating}>
-                <AiFillStar className="dark:text-dark-blue text-light-blue" />
-              </EditBtn>}
+              {myReview ? (
+                <EditBtn text={myReview.rating} onClick={() => setShowUpdateModal(true)}>
+                  <AiFillStar className="dark:text-dark-blue text-light-blue" />
+                </EditBtn>
+              ) : (
+                <EditBtn text="Rate" onClick={() => setShowReviewModal(true)}>
+                  <AiOutlineStar className="dark:text-highlight-dark text-highlight-deep" />
+                </EditBtn>
+              )}
               <EditBtn text="Delete" onClick={() => setShowConfirmModal(true)}>
                 <BsTrash className="dark:text-dark-subtle text-light-subtle" />
               </EditBtn>
@@ -107,20 +112,41 @@ export default function WatchCard({ movie, onDelete }) {
         </div>
       </div>
 
-      <AddRatingModal
-        movieId={id}
-        type={type}
-        title={title}
-        visible={showReviewModal}
-        onClose={() => setShowReviewModal(false)}
-        onSuccess={handleRatingSuccess}
-      />
+      {myReview ? (
+        <UpdateRatingModal
+          reviewId={myReview._id}
+          title={title}
+          visible={showUpdateModal}
+          onClose={() => setShowUpdateModal(false)}
+          onSuccess={handleRatingSuccess}
+          onDelete={onDelete}
+          defaultContent={myReview.content}
+          defaultRating={new Array(myReview.rating).fill("")}
+        />
+      ) : (
+        <AddRatingModal
+          movieId={id}
+          type={type}
+          title={title}
+          visible={showReviewModal}
+          onClose={() => setShowReviewModal(false)}
+          onSuccess={handleRatingSuccess}
+        />
+      )}
 
       <ConfirmModal
         visible={showConfirmModal}
         busy={busy}
-        title={`Are you sure to remove ${title} from your watchlist?`}
-        subtitle="You can still bookmark it later"
+        title={
+          myReview
+            ? `Are you sure to remove your review of ${title}?`
+            : `Are you sure to remove ${title} from your watchlist?`
+        }
+        subtitle={
+          myReview
+            ? "You can still review it back"
+            : "You can still bookmark it later"
+        }
         onConfirm={handleRemoveFromList}
         onClose={() => setShowConfirmModal(false)}
       />
