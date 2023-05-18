@@ -30,6 +30,7 @@ import LibraryBlock from "./LibraryBlock";
 import Loading from "../user/Loading";
 import ConfirmModal from "../modals/ConfirmModal";
 import { ImSpinner3 } from "react-icons/im";
+import { bookmark, unbookmark } from "../../api/user";
 
 const ratingClass =
   "flex items-center p-2 hover:dark:bg-secondary hover:bg-zinc transition cursor-pointer rounded";
@@ -73,7 +74,17 @@ export default function SingleMovie() {
     setShowReviewModal(true);
   };
 
-  const handleBookmark = () => {
+  const handleBookmark = async () => {
+    if (!authInfo.isLoggedIn) return navigate("/auth/login");
+    if (!isBookmarked) {
+      const { error, message } = await bookmark(movieId, type);
+      if (error) return updateNotification("error", error);
+      updateNotification("success", message);
+    } else {
+      const { error, message } = await unbookmark(movieId, type);
+      if (error) return updateNotification("error", error);
+      updateNotification("success", message);
+    }
     setIsBookMarked(!isBookmarked);
   };
 
