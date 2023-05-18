@@ -47,7 +47,7 @@ export default function Signup() {
     e.preventDefault();
     const { ok, error } = validateUser(userInfo, passwdConfirm);
     if (!ok) return updateNotification("error", error);
-    const { err, user } = await createUser(userInfo);
+    const { error: err, user } = await createUser(userInfo);
     if (err) return updateNotification("error", err);
     navigate("/auth/verify-email", { state: { user }, replace: true });
   };
