@@ -2,7 +2,7 @@
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
-You can visit the web app deployed by DigitalOcean by the domain: https://moviereviewapp.com/
+You can visit the web app deployed by Amazon Amplify: https://main.d1nt4bgv4629q7.amplifyapp.com
 
 ## Available Scripts
 
