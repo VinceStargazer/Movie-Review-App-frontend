@@ -1,5 +1,5 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useAuth, useNotification } from "../../hooks";
 import Loading from "./Loading";
 import { getWatched } from "../../api/user";
@@ -11,6 +11,7 @@ import Trending from "../movie/Trending";
 export default function Watched() {
   const { updateNotification } = useNotification();
   const { authInfo } = useAuth();
+  const navigate = useNavigate();
   const id = authInfo?.profile?.id;
 
   const [ready, setReady] = useState(false);
@@ -31,7 +32,12 @@ export default function Watched() {
   useEffect(() => {
     window.scrollTo(0, 0);
     if (id) fetchMovieList();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
+
+  useEffect(() => {
+    if (!authInfo.isLoggedIn) navigate('/');
+  }, [authInfo.isLoggedIn, navigate]);
 
   if (!ready) return <Loading />;
 
